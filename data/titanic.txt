@@ -1,0 +1,25 @@
+TITANIC DATASET
+description from https://data.world/nrippner/titanic-disaster-dataset
+dataset from kaggle
+
+DESCRIPTION
+Classic dataset on Titanic disaster used often for data mining tutorials and demonstrations
+SUMMARY
+This is a classic dataset used in many data mining tutorials and demos -- perfect for exploratory analysis and building binary classification models to predict survival.
+
+Data covers passengers only, not crew.
+
+Features
+survival - Survival (0 = No; 1 = Yes)
+class - Passenger Class (1 = 1st; 2 = 2nd; 3 = 3rd)
+name - Name
+sex - Sex
+age - Age
+sibsp - Number of Siblings/Spouses Aboard
+parch - Number of Parents/Children Aboard
+ticket - Ticket Number
+fare - Passenger Fare
+cabin - Cabin
+embarked - Port of Embarkation (C = Cherbourg; Q = Queenstown; S = Southampton)
+boat - Lifeboat (if survived)
+body - Body number (if did not survive and body was recovered)
