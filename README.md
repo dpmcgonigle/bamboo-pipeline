@@ -14,7 +14,7 @@ In order for the transformer functions to work with the new PandasFeatureUnion c
 
 I have a walkthrough notebook in this repository that you can view in order to see how it all works together.  I have worked through two examples in the notebook, the cononical Titanic dataset, and a Lung Cancer dataset.
 
-* **View Walkthrough Here** [Dataset Walkthrough Notebook](./dataset_walkthroughs.html)
+* **View Walkthrough Here** [Dataset Walkthrough Notebook](./dataset_walkthroughs.ipynb)
 
 ## Creating Custom Transformers
 
