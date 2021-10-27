@@ -56,119 +56,15 @@ Example:
     # Execute
     crt = full_pipeline.fit_transform(df)
 """
-
-import numpy as np
 import pandas as pd
-from joblib import Parallel, delayed
+
 import sklearn
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.pipeline import FeatureUnion, Pipeline, _fit_transform_one, _transform_one
-from scipy import sparse
+
 import inspect
 
-#   PandasFeatureUnion class
-##################################################################################################
-class PandasFeatureUnion(FeatureUnion):
-    """
-    PandasFeatureUnion is meant to combine data pipelines to create data superset like FeatureUnion, 
-    but it maintains the column names and indexes of the Pandas DataFrame.
-    Combine pipeline data in Pandas DataFrame using a class that inherits from sklearn.pipeline.FeatureUnion
-    Code at https://github.com/marrrcin/pandas-feature-union
-    https://zablo.net/blog/post/pandas-dataframe-in-scikit-learn-feature-union
-    
-    Example:
-        # Create the numeric data pre-processing pipeline
-        def numeric_pipeline(num_attribs):
-            num_pipeline = Pipeline([
-                ('selector', PandasSubsetSelector(num_attribs)),
-                ('imputer', PandasTransform( SimpleImputer('median') )),
-                ('std_scaler', PandasTransform( StandardScaler() ) ),
-                ('add_five', PandasTransform(lambda X: X+5))
-            ])
-            return num_pipeline
 
-        # Create the categorical data pre-processing pipeline
-        def categorical_pipeline(cat_attribs):
-            cat_pipeline = Pipeline([
-                ('selector', PandasSubsetSelector(cat_attribs)),
-                ('imputer', PandasTransform( SimpleImputer('most_frequent') )),
-                ('cat_encoder', PandasOneHotEncoder())
-            ])
-            return cat_pipeline
-
-        # Pass columns through without scaling, but imputing most frequent value
-        def identity_pipeline(identity_attribs):
-            identity_pipeline = Pipeline([
-                ('selector', PandasSubsetSelector(identity_attribs)),
-                ('imputer', PandasTransform( SimpleImputer('most_frequent') )),
-                ('add_five', PandasTransform(lambda X: X+5))
-            ])
-            return identity_pipeline
-
-        # specify columns each pipeline is going to take from the dataframe	
-        num_attribs = [ 'ACEI/ARB', 'Age', 'CABG', ... ]
-        cat_attribs = [ 'NYHA' ]
-        identity_attribs = [ 'response_num', 'response_cat', 'ID', 'MI' ]
-
-        # Create pipeline
-        num_pipeline = numeric_pipeline(num_attribs)
-        cat_pipeline = categorical_pipeline(cat_attribs)
-        identity_pipeline = identity_pipeline(identity_attribs)
-
-        full_pipeline = PandasFeatureUnion(transformer_list=[
-            ('num_pipeline', num_pipeline),
-            ('cat_pipeline', cat_pipeline),
-            ('identity_pipeline', identity_pipeline)
-        ])
-        #################################################
-
-        # Execute
-        crt = full_pipeline.fit_transform(df)
-    """
-    def fit_transform(self, X, y=None, **fit_params):
-        self._validate_transformers()
-        result = Parallel(n_jobs=self.n_jobs)(
-            delayed(_fit_transform_one)(
-                transformer=trans,
-                X=X,
-                y=y,
-                weight=weight,
-                **fit_params)
-            for name, trans, weight in self._iter())
-
-        if not result:
-            # All transformers are None
-            return np.zeros((X.shape[0], 0))
-        Xs, transformers = zip(*result)
-        self._update_transformer_list(transformers)
-        if any(sparse.issparse(f) for f in Xs):
-            Xs = sparse.hstack(Xs).tocsr()
-        else:
-            Xs = self.merge_dataframes_by_column(Xs)
-        return Xs
-
-    def merge_dataframes_by_column(self, Xs):
-        return pd.concat(Xs, axis="columns", copy=False)
-
-    def transform(self, X):
-        Xs = Parallel(n_jobs=self.n_jobs)(
-            delayed(_transform_one)(
-                transformer=trans,
-                X=X,
-                y=None,
-                weight=weight)
-            for name, trans, weight in self._iter())
-        if not Xs:
-            # All transformers are None
-            return np.zeros((X.shape[0], 0))
-        if any(sparse.issparse(f) for f in Xs):
-            Xs = sparse.hstack(Xs).tocsr()
-        else:
-            Xs = self.merge_dataframes_by_column(Xs)
-        return Xs
-#   END PandasFeatureUnion class
-##################################################################################################
 		
 #   PandasTransform class
 ##################################################################################################

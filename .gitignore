@@ -10,6 +10,7 @@ __pycache__
 # Directories #
 ########
 .ipynb_checkpoints/*
+.idea
 
 # Compiled source #
 ###################
