@@ -1,7 +1,8 @@
 """
 feature_union.py
 
-Wrapper for sklearn.pipeline's FeatureUnion, build to support pandas DataFrames
+Wrapper for sklearn.pipeline's FeatureUnion,
+    built to support pandas DataFrames
 """
 from typing import List, Union
 
