@@ -18,5 +18,5 @@ setup(
     author_email="dpmcgonigle@gmail.com",
     url="https://github.com/dpmcgonigle/bamboo-pipeline",
     packages=["bamboo_pipeline"],  # same as name
-    install_requires=["numpy", "pandas", "scikit-learn", "scipy",],
+    install_requires=["numpy", "pandas", "scikit-learn", "scipy"],
 )
