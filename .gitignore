@@ -10,6 +10,10 @@ __pycache__
 # Directories #
 ########
 .ipynb_checkpoints/*
+.idea
+build
+dist
+bamboo_pipeline.egg-info
 
 # Compiled source #
 ###################
