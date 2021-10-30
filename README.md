@@ -1,24 +1,56 @@
 # Bamboo Pipeline
+***
+## Contents
 
-## A scikit-learn / pandas mashup for preprocessing mixed-attribute datasets with ease
+- [Purpose](#purpose)
+- [Setup](#setup)
+- [Development](#development)
+- [Examples](#examples)
+- [Authors](#authors)
 
-### Purpose
+## Purpose
+***
+### Create scikit-learn data preprocessing pipelines that process/return pandas DataFrame objects
 
-This library contains preprocessing transformer functions (inheriting sklearn.base.TransformerMixin) for Pandas DataFrames based around the concept of using PandasFeatureUnion to stitch together the results of multiple different Pipelines. The advantage to this module is to return pandas DataFrames from the pipelined transformer functions instead of the (scipy.sparse_matrix, np.array, etc) native output of sklearn transformers so that the indexes and column names are preserved for the output.
+This library contains preprocessing transformer functions (inheriting sklearn.base.TransformerMixin) for Pandas DataFrames based around the concept of using PandasFeatureUnion to stitch together the results of multiple different Pipelines.   
 
-In order for the transformer functions to work with the new PandasFeatureUnion class, we have to make sure the sklearn transformer functions return Pandas DataFrames.  For some of these, we had to create classes that inherit those duck-typed transformers.  PandasOneHotEncoder() mimics OneHotEncoder, creating intuitive column headers based on the values for which they transform.  PandasLabelEncoder() can take an entire DataFrame (or subset of it), rather than LabelEncoder's ability to only take one 2-D column of information.  Other transformer functions can be passed to PandasTransform, such as MinMaxScaler, SimpleImputer, StandardScaler, etc.  You can also pass lambda functions into the pipeline.
+### Motivation
 
-### Examples
+The ability to return pandas DataFrames from the pipelined transformer functions instead of the (scipy.sparse_matrix, np.array, etc) native output of sklearn transformers so that the indexes and column names are preserved for the output.  This saves time/code appropriately labelling the columns and rows of the ensuing output.  The key to this module is the PandasFeatureUnion, which ties multiple pipelines together.  For instance, you can create a numeric pipeline that receives normalization operations, a categorical pipeline that receives one-hot encoding, and an identity pipeline to pass the label category through untouched. 
 
-![Canonical Titanic Dataset](./img/titanic.png)
+## Setup
+***
+### Requirements
 
-I have a walkthrough notebook in this repository that you can view in order to see how it all works together.  I have worked through two examples in the notebook, the cononical Titanic dataset, and a Lung Cancer dataset.
+This code has been developed using python 3.8, though I imagine python 3.7 and 3.6 should work as well.
 
-* **View Walkthrough Here** [Dataset Walkthrough Notebook](./dataset_walkthroughs.ipynb)
+### Environment
 
-## Creating Custom Transformers
+You can use `environment.yml` to create a new anaconda environment.
 
-### Lambda Functions and Sklearn Transformers
+### Installation
+
+`pip install .`
+
+## Development
+***
+### [Contributing](CONTRIBUTING.md)
+
+### Creating Transformers
+
+In order for the transformer functions to work with the new PandasFeatureUnion class, we have to make sure the sklearn transformer functions return Pandas DataFrames.  For some of these, we had to create classes that inherit those duck-typed transformers.  PandasOneHotEncoder() mimics OneHotEncoder, creating intuitive column headers based on the values for which they transform.  PandasLabelEncoder() can take an entire DataFrame (or subset of it), rather than LabelEncoder's ability to only take one 2-D column of information.  Other transformer functions can be passed to PandasTransform, such as MinMaxScaler, SimpleImputer, StandardScaler, etc.  You can also pass lambda functions into the pipeline.  
+
+For some scikit-learn transformers, you may be able to simply pass the transformer to the wrapper class PandasTransform such as:  
+
+> PandasTransform( sklearn.preprocessing.StandardScaler() )
+
+In other instances, you might want to use a function that is not currently a sklearn transformer:
+
+> PandasTransform(lambda X: X.where(X.index!='Pclass',1) if X['Age']<25 else X, axis=1)
+
+If more than a simple lambda function is required, see `transformers.py` for examples, and ensure you inherit from TransformerMixin and BaseEstimator.  You will need to implement the fit() and transform() methods.
+
+### PandasTransform - Accepts Lambda Functions and Sklearn Transformers
 
 PandasTransform has been designed so that it can take either sklearn.base.TransformerMixin modules or lambda functions, giving it a wide range of functionality.  if a lambda function is passed, it will utilize DataFrame.apply() with the appropriate axis passed as a parameter.  This gives the capability to perform transformations in one column that are contingent upon another column.  
 
@@ -37,12 +69,14 @@ Sklearn Function Examples:
 * PandasTransform( SimpleImputer(strategy='most_frequent') )
 * PandasTransform( sklearn.preprocessing.StandardScaler() )
 
-### Custom Transformers for Transformers that don't play nicely with these modules
+## Examples
+***
+![Canonical Titanic Dataset](./img/titanic.png)
 
-There are some transformers that can't be passed to PandasTransform() "off the shelf".  For instance, I have created transformer functions PandasLabelEncoder and PandasOneHotEncoder to wrap the Sklearn functions that do the same.  These functions inherit sklearn.base.BaseEstimator and sklearn.base.TransformerMixin, and this is a requirement for sklearn transformer functions.  They are duck-typed, which means that you have to implement the specific base set of functionalities for it to be considered a transformer function (if it walks like a duck and quacks like a duck...).  These requirements are fit and transform functions.  See the two examples in bamboo_pipeline.py if you would like to see how you might go about creating a new custom transformer for bamboo_pipeline.
+I have a [walkthrough (examples.ipynb)](examples.ipynb) notebook in this repository that you can view in order to see how it all works together.  I have worked through two examples in the notebook, the cononical Titanic dataset, and a Lung Cancer dataset.
 
 ## Authors
-
+***
 * **Dan McGonigle** [dpmcgonigle](https://github.com/dpmcgonigle)
 * Credit to https://github.com/marrrcin/pandas-feature-union
     https://zablo.net/blog/post/pandas-dataframe-in-scikit-learn-feature-union
